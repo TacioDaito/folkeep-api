@@ -1,59 +1,129 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Folkeep
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> 🇧🇷 [Leia em Português](./README.pt-BR.md)
 
-## About Laravel
+A B2B people analytics platform for managing and analyzing workforce data, focused on headcount, turnover, and organizational distribution reports.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+A multitenant system where companies manage their employees and extract strategic HR insights — without the complexity of a full HRIS. The goal is to turn structured people data into actionable reports.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Stack
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Layer | Technology |
+|---|---|
+| Backend | Laravel 12+ (REST API) |
+| Frontend | React + TypeScript (decoupled SPA) |
+| Relational Database | PostgreSQL |
+| Logs / Events | MongoDB |
+| Authentication | Laravel Sanctum (stateless token) |
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Architecture
 
-### Premium Partners
+```
+┌─────────────────────┐        HTTP / JSON        ┌──────────────────────┐
+│                     │  ──────────────────────►  │                      │
+│   React + TypeScript│                           │    Laravel API        │
+│   (SPA)             │  ◄──────────────────────  │    (REST)             │
+│                     │                           │                       │
+└─────────────────────┘                           └──────────┬────────────┘
+                                                             │
+                                              ┌──────────────┴──────────────┐
+                                              │                             │
+                                     ┌────────▼────────┐        ┌──────────▼───────┐
+                                     │   PostgreSQL     │        │     MongoDB       │
+                                     │  (relational     │        │  (event logs /    │
+                                     │    data)         │        │   history)        │
+                                     └─────────────────┘        └──────────────────┘
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+The frontend is an independent project that consumes the API via Sanctum token. There is no coupling via Inertia or Blade — API contracts are the only interface between the two projects.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Planned Features
 
-## Code of Conduct
+**MVP**
+- Token-based authentication with multitenancy support
+- Employee registration with department, role, contract type, and hire date
+- Employee event history (promotions, role changes, salary updates) stored in MongoDB
+- Headcount report by department
+- Monthly/quarterly turnover report
+- Salary distribution by band and level
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**Future Expansions**
+- Real-time notifications (Laravel Reverb)
+- PDF report export
+- Document upload with S3
+- CI/CD with GitHub Actions
+- Diversity and inclusion metrics
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Key Technical Decisions
 
-## License
+**Employee history with Slowly Changing Dimensions**
+Employees change roles, salaries, and departments over time. To enable accurate historical reports, changes are recorded with `valid_from` / `valid_to` columns in PostgreSQL — not just the current state.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**MongoDB for events**
+Every relevant action in the system (hire, promotion, termination, salary change) generates a flexible-schema event document in MongoDB, indexed by `tenant_id`, `employee_id`, and `timestamp`.
+
+**Schema-based multitenancy**
+Each company (tenant) has its own PostgreSQL schema, isolating data without the overhead of separate databases.
+
+**Versioned API**
+All endpoints follow the `/api/v1/` prefix with a standardized response envelope:
+```json
+{
+  "data": {},
+  "meta": {},
+  "errors": []
+}
+```
+
+---
+
+## Project Structure
+
+```
+people-analytics/
+├── api/          # Laravel — REST API
+└── web/          # React + TypeScript — SPA
+```
+
+---
+
+## Running Locally
+
+> Prerequisites: Docker, Node.js 20+, PHP 8.2+, Composer
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/people-analytics.git
+cd people-analytics
+
+# Backend
+cd api
+cp .env.example .env
+composer install
+php artisan key:generate
+php artisan migrate --seed
+
+# Frontend
+cd ../web
+cp .env.example .env.local
+npm install
+npm run dev
+```
+
+---
+
+## Status
+
+🚧 Under development — MVP in progress.
