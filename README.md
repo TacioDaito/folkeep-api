@@ -23,35 +23,33 @@ Folkeep is a multitenant system where companies manage their employees and extra
 
 * Docker — Service Decoupling
 
-### Flow & Architecture
+### Architecture
 
 ```
                         ┌──────┐
                         │ User │
-                        └──┬───┘
-                           │ 1. Access from web
-                           ▼
+                        └──────┘
+                           ▲ 
+                           │
+                           ▼ 
 ┌─────────────────────────────────────────────────────┐
 │                 Container A                         │
 │                 REACT SPA ─ Frontend                |
 └─────────────────────────────────────────────────────┘
-       ▲ 5. Auth code                        ▲ 
-       │                                     │ 
+       ▲                                     ▲ 
        │                                     │
-       ▼ 2. Login redirect                   ▼ . JWT code
+       ▼                                     ▼ 
 ┌────────────────────────┐  ┌───────────────────────────────┐
 │ Container B            │  │ Container C                   │
 │ KEYCLOAK ─ Auth Server |  │ LARAVEL API ─ Resource Server │
 └────────────────────────┘  └───────────────────────────────┘
-          ▲ 4. Credentials                ▲
+          ▲                               ▲
           |       ┌───────────────────────┤
-          |       │                       │
-          |       │                       │
- 3. Query ▼       ▼                       ▼
-     ┌─────────────────┐     ┌─────────────────┐
-     │                 │     │                 │
-     │   PostgreSQL    │     │    MongoDB      │
-     └─────────────────┘     └─────────────────┘
+          ▼       ▼                       ▼
+  ┌──────────────────────┐  ┌──────────────────────┐
+  │ Container D          │  │ Container E          │
+  │ PostgreSQL ─ Main DB │  │ MongoDB ─ Logging DB │
+  └──────────────────────┘  └──────────────────────┘
 ```
 
 ### Features (MVP)
