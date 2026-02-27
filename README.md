@@ -2,11 +2,11 @@
 
 >[Leia em português pt-BR](https://github.com/TacioDaito/folkeep-api/blob/main/README.pt-BR.md)
 
-Laravel-based REST API acting as an OAuth 2.0 Resource Server. Responsible for JWT validation, multitenant data isolation, historical employee modeling (SCD Type 2), and analytics-ready reporting. Implements stateless authentication, schema-based tenancy, event logging, and versioned endpoints.
+Laravel-based REST API acting as an OAuth 2.0 Resource Server. Responsible for JWT validation, hybrid multi-tenant database modeling, historical data modeling (SCD type 2), and analytics-ready reporting. Implements stateless authentication, shared and per-database tenancy, event logging, and versioned endpoints.
 
 ## System Overview
 
-Folkeep is a multitenant system where companies manage their employees and extract strategic HR insights — without the complexity of a full HRIS. The goal is to turn structured people data into actionable reports in a system that uses a fully decoupled architecture, designed with enterprise-grade patterns.
+Folkeep is a plataform where companies manage their employees and extract strategic HR insights — without the complexity of a full HRIS. The goal is to turn structured people data into actionable reports in a plataform that uses a fully decoupled architecture, designed with enterprise-grade patterns.
 
 ### Tech Stack
 
@@ -57,8 +57,8 @@ Folkeep is a multitenant system where companies manage their employees and extra
 ### Features (MVP)
 
 * OAuth 2.0 authentication
-* Multitenant employee management
-* Historical tracking (SCD)
+* Hybrid multitenant database architecture (shared database and database-per-tenant)
+* Historical tracking (SCD type 2)
 * Headcount reports
 * Turnover reports
 * Salary distribution analytics
